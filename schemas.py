@@ -17,4 +17,3 @@ class LeadResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
