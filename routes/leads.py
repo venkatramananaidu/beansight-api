@@ -1,3 +1,5 @@
+from models import Lead, Subscriber
+from schemas import LeadCreate, LeadResponse, SubscriberCreate, SubscriberResponse
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
@@ -30,3 +32,21 @@ def submit_interest(lead: LeadCreate, db: Session = Depends(get_db)):
 def get_leads(db: Session = Depends(get_db)):
     leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
     return leads
+
+@router.post("/subscribe", response_model=SubscriberResponse)
+def subscribe(subscriber: SubscriberCreate, db: Session = Depends(get_db)):
+    try:
+        existing = db.query(Subscriber).filter(Subscriber.email == subscriber.email).first()
+        if existing:
+            return existing
+        db_subscriber = Subscriber(
+            email=subscriber.email,
+            source=subscriber.source
+        )
+        db.add(db_subscriber)
+        db.commit()
+        db.refresh(db_subscriber)
+        return db_subscriber
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

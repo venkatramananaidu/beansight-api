@@ -17,3 +17,15 @@ class LeadResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SubscriberCreate(BaseModel):
+    email: str
+    source: Optional[str] = None
+
+class SubscriberResponse(BaseModel):
+    id: int
+    email: str
+
+    class Config:
+        from_attributes = True
